@@ -6,7 +6,3 @@ applications:
       - name: nginx-app
         namespace: default
   
-  - valueStream: cloud
-    microservices:
-      - name: nginx-app2
-        namespace: default

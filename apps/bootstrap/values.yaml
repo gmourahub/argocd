@@ -1,0 +1,6 @@
+targetRevision: main
+
+applications:
+  microservices:
+    - name: nginx-app
+      namespace: default

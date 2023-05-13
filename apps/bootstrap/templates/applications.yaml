@@ -5,7 +5,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: {{ $microservice.name }}
-  namespace: argocd
+  namespace: default
 spec:
   project: default
   source:

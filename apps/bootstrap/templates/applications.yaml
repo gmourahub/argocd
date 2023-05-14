@@ -6,8 +6,12 @@ kind: Application
 metadata:
   name: {{ $microservice.name }}
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ ($microservice.wave | quote) | default ("5" | quote) }}  
   finalizers:
-  - resources-finalizer.argocd.argoproj.io
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+      name: {{ $microservice.name }}
 spec:
   project: default
   source:

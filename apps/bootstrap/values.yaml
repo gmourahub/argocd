@@ -1,8 +1,10 @@
 targetRevision: main
 
 applications:
-  - valueStream: cloud
-    microservices:
-      - name: nginx-app
-        namespace: default
+  - microservices:
+    - name: nginx-app
+      namespace: default
+      wave: 1
+    - name: cert-manager
+      namespace: cert-manager
   

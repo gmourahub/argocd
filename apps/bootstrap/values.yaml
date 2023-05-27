@@ -6,13 +6,15 @@ applications:
       namespace: default
       wave: 1
       repoUrl: "https://github.com/guimoura/argocd.git"
+      prune: "false"
+      selfHeal: "false"
     - name: cert-manager
       namespace: cert-manager
       repoUrl: "https://github.com/guimoura/argocd.git"
     - name: httpbin
       namespace: httpbin
       repoUrl: "https://github.com/guimoura/argocd.git"
-      prune: false
-      selfHeal: false
+      prune: "false"
+      selfHeal: "false"
 
   

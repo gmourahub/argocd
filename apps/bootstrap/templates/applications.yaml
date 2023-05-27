@@ -11,7 +11,10 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
   labels:
-      name: {{ $microservice.name }}
+    name: {{ $microservice.name }}
+    {{- if $microservice.maintainer }}
+    maintainer: {{ $microservice.maintainer }}
+    {{- end }}
 spec:
   project: default
   source:
@@ -21,9 +24,13 @@ spec:
   destination:
     server: https://192.168.49.2:8443
     namespace: {{ ($microservice.namespace | default $app.namespace) | default "default" }}
+  {{- if or $microservice.prune $microservice.selfHeal }}
   syncPolicy:
     automated:
       prune: {{ $microservice.prune | default true }}
       selfHeal: {{ $microservice.selfHeal | default true }}
+  {{- end }}
 {{- end }}
 {{- end }}
+
+#arrumar esse caralho de syncPolicyEnabled

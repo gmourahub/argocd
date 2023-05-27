@@ -5,6 +5,8 @@ applications:
     - name: nginx-app
       namespace: default
       wave: 1
+      repoUrl: "https://github.com/guimoura/argocd.git"
     - name: cert-manager
       namespace: cert-manager
+      repoUrl: "https://github.com/guimoura/argocd.git"
   

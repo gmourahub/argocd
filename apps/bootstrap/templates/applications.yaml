@@ -15,7 +15,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/guimoura/argocd.git
+    repoURL: {{ $microservice.repoUrl }}
     targetRevision: {{ $.Values.targetRevision }}
     path: charts/{{ $microservice.name }}
   destination:

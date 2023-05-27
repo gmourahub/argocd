@@ -9,4 +9,7 @@ applications:
     - name: cert-manager
       namespace: cert-manager
       repoUrl: "https://github.com/guimoura/argocd.git"
+    - name: prometheus
+      namespace: prometheus
+      repoUrl: "https://github.com/guimoura/argocd.git"
   

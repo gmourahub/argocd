@@ -9,7 +9,10 @@ applications:
     - name: cert-manager
       namespace: cert-manager
       repoUrl: "https://github.com/guimoura/argocd.git"
-    - name: prometheus
-      namespace: prometheus
+    - name: httpbin
+      namespace: httpbin
       repoUrl: "https://github.com/guimoura/argocd.git"
+      prune: false
+      selfHeal: false
+
   

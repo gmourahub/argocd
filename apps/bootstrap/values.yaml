@@ -2,6 +2,11 @@ targetRevision: main
 
 applications:
   - microservices:
+    # - name: keda
+    #   namespace: keda
+    #   maintainer: guimoura
+    #   repoUrl: "https://github.com/guimoura/argocd.git"
+
     - name: nginx-app
       namespace: default
       maintainer: guimoura
@@ -10,14 +15,14 @@ applications:
       prune: 'true'
       selfHeal: 'false'
 
-    - name: cert-manager
-      namespace: cert-manager
-      maintainer: guimoura
-      repoUrl: "https://github.com/guimoura/argocd.git"
+    # - name: cert-manager
+    #   namespace: cert-manager
+    #   maintainer: guimoura
+    #   repoUrl: "https://github.com/guimoura/argocd.git"
 
-    - name: httpbin
-      namespace: httpbin
-      repoUrl: "https://github.com/guimoura/argocd.git"
-      prune: 'false'
-      selfHeal: 'false'
+    # - name: httpbin
+    #   namespace: httpbin
+    #   repoUrl: "https://github.com/guimoura/argocd.git"
+    #   prune: 'false'
+    #   selfHeal: 'false'
   

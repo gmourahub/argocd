@@ -23,10 +23,10 @@ applications:
       prune: 'true'
       selfHeal: 'false'
       
-    # - name: cert-manager
-    #   namespace: cert-manager
-    #   maintainer: guimoura
-    #   repoUrl: "https://github.com/guimoura/argocd.git"
+    - name: cert-manager
+      namespace: cert-manager
+      maintainer: guimoura
+      repoUrl: "https://github.com/guimoura/argocd.git"
 
     # - name: httpbin
     #   namespace: httpbin

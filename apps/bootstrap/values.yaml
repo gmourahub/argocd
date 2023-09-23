@@ -28,6 +28,11 @@ applications:
       maintainer: guimoura
       repoUrl: "https://github.com/guimoura/argocd.git"
 
+    - name: prometheus
+      namespace: prometheus
+      maintainer: guimoura
+      repoUrl: "https://github.com/guimoura/argocd.git"
+
     # - name: httpbin
     #   namespace: httpbin
     #   repoUrl: "https://github.com/guimoura/argocd.git"

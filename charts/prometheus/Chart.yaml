@@ -4,50 +4,60 @@ annotations:
     - name: Chart Source
       url: https://github.com/prometheus-community/helm-charts
     - name: Upstream Project
-      url: https://github.com/prometheus/prometheus
+      url: https://github.com/prometheus-operator/kube-prometheus
+  artifacthub.io/operator: "true"
 apiVersion: v2
-appVersion: v2.47.0
+appVersion: v0.68.0
 dependencies:
-- condition: alertmanager.enabled
-  name: alertmanager
-  repository: https://prometheus-community.github.io/helm-charts
-  version: 1.6.*
-- condition: kube-state-metrics.enabled
+- condition: crds.enabled
+  name: crds
+  repository: ""
+  version: 0.0.0
+- condition: kubeStateMetrics.enabled
   name: kube-state-metrics
   repository: https://prometheus-community.github.io/helm-charts
-  version: 5.13.*
-- condition: prometheus-node-exporter.enabled
+  version: 5.12.*
+- condition: nodeExporter.enabled
   name: prometheus-node-exporter
   repository: https://prometheus-community.github.io/helm-charts
   version: 4.23.*
-- condition: prometheus-pushgateway.enabled
-  name: prometheus-pushgateway
+- condition: grafana.enabled
+  name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 6.59.*
+- condition: windowsMonitoring.enabled
+  name: prometheus-windows-exporter
   repository: https://prometheus-community.github.io/helm-charts
-  version: 2.4.*
-description: Prometheus is a monitoring system and time series database.
-home: https://prometheus.io/
+  version: 0.1.*
+description: kube-prometheus-stack collects Kubernetes manifests, Grafana dashboards,
+  and Prometheus rules combined with documentation and scripts to provide easy to
+  operate end-to-end Kubernetes cluster monitoring with Prometheus using the Prometheus
+  Operator.
+home: https://github.com/prometheus-operator/kube-prometheus
 icon: https://raw.githubusercontent.com/prometheus/prometheus.github.io/master/assets/prometheus_logo-cb55bb5c346.png
 keywords:
-- monitoring
+- operator
 - prometheus
+- kube-prometheus
 kubeVersion: '>=1.19.0-0'
 maintainers:
+- email: andrew@quadcorps.co.uk
+  name: andrewgkew
 - email: gianrubio@gmail.com
   name: gianrubio
-- email: zanhsieh@gmail.com
-  name: zanhsieh
+- email: github.gkarthiks@gmail.com
+  name: gkarthiks
+- email: kube-prometheus-stack@sisti.pt
+  name: GMartinez-Sisti
+- email: scott@r6by.com
+  name: scottrigby
 - email: miroslav.hadzhiev@gmail.com
   name: Xtigyro
-- email: naseem@transit.app
-  name: naseemkullah
-- email: rootsandtrees@posteo.de
-  name: zeritti
-name: prometheus
+- email: quentin.bisson@gmail.com
+  name: QuentinBisson
+name: kube-prometheus-stack
 sources:
-- https://github.com/prometheus/alertmanager
-- https://github.com/prometheus/prometheus
-- https://github.com/prometheus/pushgateway
-- https://github.com/prometheus/node_exporter
-- https://github.com/kubernetes/kube-state-metrics
+- https://github.com/prometheus-community/helm-charts
+- https://github.com/prometheus-operator/kube-prometheus
 type: application
-version: 25.0.0
+version: 51.1.1

@@ -26,11 +26,14 @@ spec:
     namespace: {{ ($microservice.namespace | default $app.namespace) | default "default" }}
   {{- if or $microservice.prune $microservice.selfHeal }}
   syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
     automated:
       prune: {{ $microservice.prune | default true }}
       selfHeal: {{ $microservice.selfHeal | default true }}
+      
   {{- end }}
 {{- end }}
 {{- end }}
 
-#arrumar esse caralho de syncPolicyEnabled
+#arrumar esse syncPolicyEnabled

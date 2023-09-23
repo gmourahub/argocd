@@ -27,6 +27,8 @@ applications:
 
     - name: prometheus
       namespace: prometheus
+      prune: 'true'
+      selfHeal: 'true'
 
     # - name: httpbin
     #   namespace: httpbin

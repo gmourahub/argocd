@@ -18,7 +18,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: {{ $microservice.repoUrl }}
+    repoURL: {{ $.Values.repoUrl }}
     targetRevision: {{ $.Values.targetRevision }}
     path: charts/{{ $microservice.name }}
   destination:

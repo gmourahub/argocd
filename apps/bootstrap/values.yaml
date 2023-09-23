@@ -1,4 +1,5 @@
 targetRevision: main
+repoUrl: "https://github.com/guimoura/argocd.git"
 
 applications:
   - microservices:
@@ -6,6 +7,9 @@ applications:
     #   namespace: keda
     #   maintainer: guimoura
     #   repoUrl: "https://github.com/guimoura/argocd.git"
+    #   wave: 1
+    #   prune: 'true'
+    #   selfHeal: 'false'
 
     - name: nginx-app
       namespace: default
@@ -17,21 +21,12 @@ applications:
 
     - name: jaeger
       namespace: jaeger
-      maintainer: guimoura
-      repoUrl: "https://github.com/guimoura/argocd.git"
-      wave: 1
-      prune: 'true'
-      selfHeal: 'false'
       
     - name: cert-manager
       namespace: cert-manager
-      maintainer: guimoura
-      repoUrl: "https://github.com/guimoura/argocd.git"
 
     - name: prometheus
       namespace: prometheus
-      maintainer: guimoura
-      repoUrl: "https://github.com/guimoura/argocd.git"
 
     # - name: httpbin
     #   namespace: httpbin

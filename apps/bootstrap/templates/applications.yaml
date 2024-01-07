@@ -26,6 +26,7 @@ spec:
     namespace: {{ ($microservice.namespace | default $app.namespace) | default "default" }}
   {{- if or $microservice.prune $microservice.selfHeal }}
   syncPolicy:
+    applicationsSync: create-only
     syncOptions:
       - ServerSideApply=true
     automated:
@@ -33,7 +34,9 @@ spec:
       selfHeal: {{ $microservice.selfHeal | default true }}
       
   {{- end }}
+  strategy:
+    ignoreApplicationDifferences:
+    - jsonPointers:
+        - /spec/syncPolicy
 {{- end }}
 {{- end }}
-
-#arrumar esse syncPolicyEnabled

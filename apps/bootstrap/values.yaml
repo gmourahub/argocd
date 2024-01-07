@@ -17,18 +17,18 @@ applications:
       repoUrl: "https://github.com/guimoura/argocd.git"
       wave: 1
       prune: 'true'
-      selfHeal: 'false'
-
-    - name: jaeger
-      namespace: jaeger
-      
-    - name: cert-manager
-      namespace: cert-manager
-
-    - name: prometheus
-      namespace: prometheus
-      prune: 'true'
       selfHeal: 'true'
+
+    # - name: jaeger
+    #   namespace: jaeger
+      
+    # - name: cert-manager
+    #   namespace: cert-manager
+
+    # - name: prometheus
+    #   namespace: prometheus
+    #   prune: 'true'
+    #   selfHeal: 'true'
 
     # - name: httpbin
     #   namespace: httpbin

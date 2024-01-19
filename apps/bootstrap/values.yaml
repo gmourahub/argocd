@@ -1,12 +1,12 @@
 targetRevision: main
-repoUrl: "https://github.com/guimoura/argocd.git"
+repoUrl: "https://github.com/gmourahub/argocd.git"
 
 applications:
   - microservices:
     # - name: keda
     #   namespace: keda
     #   maintainer: guimoura
-    #   repoUrl: "https://github.com/guimoura/argocd.git"
+    #   repoUrl: "https://github.com/gmourahub/argocd.git"
     #   wave: 1
     #   prune: 'true'
     #   selfHeal: 'false'
@@ -14,7 +14,7 @@ applications:
     - name: nginx-app
       namespace: default
       maintainer: guimoura
-      repoUrl: "https://github.com/guimoura/argocd.git"
+      repoUrl: "https://github.com/gmourahub/argocd.git"
       wave: 1
       prune: 'true'
       selfHeal: 'true'
@@ -25,6 +25,9 @@ applications:
       namespace: argo
     - name: argo-workflows
       namespace: argo
+
+    # - name: kube-downscaler
+    #   namespace: kube-downscaler
 
     # - name: jaeger
     #   namespace: jaeger
@@ -39,7 +42,7 @@ applications:
 
     # - name: httpbin
     #   namespace: httpbin
-    #   repoUrl: "https://github.com/guimoura/argocd.git"
+    #   repoUrl: "https://github.com/gmourahub/argocd.git"
     #   prune: 'false'
     #   selfHeal: 'false'
   

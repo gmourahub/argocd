@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/guimoura/argocd.git
+    repoURL: https://github.com/gmourahub/argocd.git
     targetRevision: {{ .Values.targetRevision }}
     path: apps/namespaces
   destination:

@@ -26,6 +26,9 @@ applications:
     - name: argo-workflows
       namespace: argo
 
+    - name: lgtm-distributed
+      namespace: o11y
+
     # - name: kube-downscaler
     #   namespace: kube-downscaler
 

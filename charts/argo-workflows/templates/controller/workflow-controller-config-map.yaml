@@ -3,9 +3,13 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ template "argo-workflows.controller.config-map.name" . }}
-  namespace: {{ .Release.Namespace | quote }}
+  namespace: {{ include "argo-workflows.namespace" . | quote }}
   labels:
     {{- include "argo-workflows.labels" (dict "context" . "component" .Values.controller.name "name" "cm") | nindent 4 }}
+  {{- with .Values.controller.configMap.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 data:
   config: |
     {{- if .Values.controller.instanceID.enabled }}
@@ -19,7 +23,7 @@ data:
     parallelism: {{ .Values.controller.parallelism }}
     {{- end }}
     {{- if .Values.controller.resourceRateLimit }}
-    resourceRateLimit: {{ toYaml .Values.controller.resourceRateLimit | nindent 6 }}
+    resourceRateLimit: {{- toYaml .Values.controller.resourceRateLimit | nindent 6 }}
     {{- end }}
     {{- with .Values.controller.namespaceParallelism }}
     namespaceParallelism: {{ . }}
@@ -83,6 +87,11 @@ data:
         bucket: {{ tpl (.Values.artifactRepository.s3.bucket | default "") . }}
         endpoint: {{ tpl (.Values.artifactRepository.s3.endpoint | default "") . }}
         insecure: {{ .Values.artifactRepository.s3.insecure }}
+        {{- if .Values.artifactRepository.s3.caSecret }}
+        caSecret:
+          name: {{ tpl .Values.artifactRepository.s3.caSecret.name . }}
+          key: {{ tpl .Values.artifactRepository.s3.caSecret.key . }}
+        {{- end }}
         {{- if .Values.artifactRepository.s3.keyFormat }}
         keyFormat: {{ .Values.artifactRepository.s3.keyFormat | quote }}
         {{- end }}
@@ -141,7 +150,7 @@ data:
       clientSecret:
         name: {{ .Values.server.sso.clientSecret.name }}
         key: {{ .Values.server.sso.clientSecret.key }}
-      redirectUrl: {{ .Values.server.sso.redirectUrl }}
+      redirectUrl: {{ .Values.server.sso.redirectUrl | quote }}
       rbac:
         enabled: {{ .Values.server.sso.rbac.enabled }}
       {{- with .Values.server.sso.scopes }}

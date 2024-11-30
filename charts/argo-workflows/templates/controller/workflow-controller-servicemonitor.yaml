@@ -1,9 +1,10 @@
-{{- if and (or .Values.controller.metricsConfig.enabled .Values.controller.telemetryConfig.enabled) .Values.controller.serviceMonitor.enabled }}
-apiVersion: monitoring.coreos.com/v1
+{{- $apiVersion := include "argo-workflows.apiVersions.monitoring" . }}
+{{- if and (.Capabilities.APIVersions.Has $apiVersion) (or .Values.controller.metricsConfig.enabled .Values.controller.telemetryConfig.enabled) .Values.controller.serviceMonitor.enabled }}
+apiVersion: {{ $apiVersion }}
 kind: ServiceMonitor
 metadata:
   name: {{ template "argo-workflows.controller.fullname" . }}
-  namespace: {{ default .Release.Namespace .Values.controller.serviceMonitor.namespace | quote }}
+  namespace: {{ default (include "argo-workflows.namespace" .) .Values.controller.serviceMonitor.namespace | quote }}
   labels:
     {{- include "argo-workflows.labels" (dict "context" . "component" .Values.controller.name "name" .Values.controller.name) | nindent 4 }}
     {{- with .Values.controller.serviceMonitor.additionalLabels }}
@@ -14,7 +15,7 @@ spec:
   {{- if .Values.controller.metricsConfig.enabled }}
     - port: {{ .Values.controller.metricsConfig.servicePortName }}
       path: {{ .Values.controller.metricsConfig.path }}
-      interval: 30s
+      interval: {{ .Values.controller.metricsConfig.interval }}
       {{- with .Values.controller.metricsConfig.relabelings }}
       relabelings:
         {{- toYaml . | nindent 8 }}
@@ -23,11 +24,12 @@ spec:
       metricRelabelings:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      honorLabels: {{ .Values.controller.metricsConfig.honorLabels }}
   {{- end }}
   {{- if .Values.controller.telemetryConfig.enabled }}
     - port: telemetry
       path: {{ .Values.controller.telemetryConfig.path }}
-      interval: 30s
+      interval: {{ .Values.controller.telemetryConfig.interval }}
       {{- with .Values.controller.metricsConfig.relabelings }}
       relabelings:
         {{- toYaml . | nindent 8 }}
@@ -36,6 +38,7 @@ spec:
       metricRelabelings:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      honorLabels: {{ .Values.controller.metricsConfig.honorLabels }}
   {{- end }}
   {{- with .Values.controller.metricsConfig.targetLabels }}
   targetLabels:
@@ -43,7 +46,7 @@ spec:
   {{- end }}
   namespaceSelector:
     matchNames:
-      - {{ .Release.Namespace | quote }}
+      - {{ include "argo-workflows.namespace" . | quote }}
   selector:
     matchLabels:
       {{- include "argo-workflows.selectorLabels" (dict "context" . "name" .Values.controller.name) | nindent 6 }}

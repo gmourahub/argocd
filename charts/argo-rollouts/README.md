@@ -50,22 +50,29 @@ For full list of changes please check ArtifactHub [changelog].
 | extraObjects | list | `[]` | Additional manifests to deploy within the chart. A list of objects. |
 | fullnameOverride | string | `nil` | String to fully override "argo-rollouts.fullname" template |
 | global.deploymentAnnotations | object | `{}` | Annotations for all deployed Deployments |
+| global.deploymentLabels | object | `{}` | Labels for all deployed Deployments |
+| global.revisionHistoryLimit | int | `10` | Number of old deployment ReplicaSets to retain. The rest will be garbage collected. |
 | imagePullSecrets | list | `[]` | Secrets with credentials to pull images from a private registry. Registry secret names as an array. |
 | installCRDs | bool | `true` | Install and upgrade CRDs |
 | keepCRDs | bool | `true` | Keep CRD's on helm uninstall |
 | kubeVersionOverride | string | `""` | Override the Kubernetes version, which is used to evaluate certain manifests |
 | nameOverride | string | `nil` | String to partially override "argo-rollouts.fullname" template |
+| notifications.configmap.create | bool | `true` | Whether to create notifications configmap |
 | notifications.notifiers | object | `{}` | Configures notification services |
-| notifications.secret.create | bool | `false` | Whether to create notifications secret |
+| notifications.secret.annotations | object | `{}` | Annotations to be added to the notifications secret |
+| notifications.secret.create | bool | `false` | Whether to create notifications secret. |
 | notifications.secret.items | object | `{}` | Generic key:value pairs to be inserted into the notifications secret |
+| notifications.subscriptions | list | `[]` | The subscriptions define the subscriptions to the triggers in a general way for all rollouts |
 | notifications.templates | object | `{}` | Notification templates |
 | notifications.triggers | object | `{}` | The trigger defines the condition when the notification should be sent |
+| providerRBAC.additionalRules | list | `[]` | Additional RBAC rules for others providers |
 | providerRBAC.enabled | bool | `true` | Toggles addition of provider-specific RBAC rules to the controller Role and ClusterRole |
 | providerRBAC.providers.ambassador | bool | `true` | Adds RBAC rules for the Ambassador provider |
 | providerRBAC.providers.apisix | bool | `true` | Adds RBAC rules for the Apisix provider |
 | providerRBAC.providers.awsAppMesh | bool | `true` | Adds RBAC rules for the AWS App Mesh provider |
 | providerRBAC.providers.awsLoadBalancerController | bool | `true` | Adds RBAC rules for the AWS Load Balancer Controller provider |
 | providerRBAC.providers.contour | bool | `true` | Adds RBAC rules for the Contour provider, see `https://github.com/argoproj-labs/rollouts-plugin-trafficrouter-contour/blob/main/README.md` |
+| providerRBAC.providers.gatewayAPI | bool | `true` | Adds RBAC rules for the Gateway API provider |
 | providerRBAC.providers.glooPlatform | bool | `true` | Adds RBAC rules for the Gloo Platform provider, see `https://github.com/argoproj-labs/rollouts-plugin-trafficrouter-glooplatform/blob/main/README.md` |
 | providerRBAC.providers.istio | bool | `true` | Adds RBAC rules for the Istio provider |
 | providerRBAC.providers.smi | bool | `true` | Adds RBAC rules for the SMI provider |
@@ -75,13 +82,14 @@ For full list of changes please check ArtifactHub [changelog].
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| containerSecurityContext | object | `{}` | Security Context to set on container level |
+| containerSecurityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"seccompProfile":{"type":"RuntimeDefault"}}` | Security Context to set on container level |
 | controller.affinity | object | `{}` | Assign custom [affinity] rules to the deployment |
 | controller.component | string | `"rollouts-controller"` | Value of label `app.kubernetes.io/component` |
 | controller.containerPorts.healthz | int | `8080` | Healthz container port |
 | controller.containerPorts.metrics | int | `8090` | Metrics container port |
 | controller.createClusterRole | bool | `true` | flag to enable creation of cluster controller role (requires cluster RBAC) |
 | controller.deploymentAnnotations | object | `{}` | Annotations to be added to the controller deployment |
+| controller.deploymentLabels | object | `{}` | Labels to be added to the controller deployment |
 | controller.extraArgs | list | `[]` | Additional command line arguments to pass to rollouts-controller.  A list of flags. |
 | controller.extraContainers | list | `[]` | Literal yaml for extra containers to be added to controller deployment. |
 | controller.extraEnv | list | `[]` | Additional environment variables for rollouts-controller. A list of name/value maps. |
@@ -94,7 +102,7 @@ For full list of changes please check ArtifactHub [changelog].
 | controller.logging.format | string | `"text"` | Set the logging format (one of: `text`, `json`) |
 | controller.logging.kloglevel | string | `"0"` | Set the klog logging level |
 | controller.logging.level | string | `"info"` | Set the logging level (one of: `debug`, `info`, `warn`, `error`) |
-| controller.metricProviderPlugins | object | `{}` | Configures 3rd party metric providers for controller |
+| controller.metricProviderPlugins | list | `[]` | Configures 3rd party metric providers for controller |
 | controller.metrics.enabled | bool | `false` | Deploy metrics service |
 | controller.metrics.service.annotations | object | `{}` | Service annotations |
 | controller.metrics.service.port | int | `8090` | Metrics service port |
@@ -112,13 +120,14 @@ For full list of changes please check ArtifactHub [changelog].
 | controller.pdb.maxUnavailable | string | `nil` | Maximum number / percentage of pods that may be made unavailable |
 | controller.pdb.minAvailable | string | `nil` | Minimum number / percentage of pods that should remain scheduled |
 | controller.podAnnotations | object | `{}` | Annotations to be added to application controller pods |
+| controller.podLabels | object | `{}` | Labels to be added to the application controller pods |
 | controller.priorityClassName | string | `""` | [priorityClassName] for the controller |
 | controller.readinessProbe | object | See [values.yaml] | Configure readiness [probe] for the controller |
 | controller.replicas | int | `2` | The number of controller pods to run |
 | controller.resources | object | `{}` | Resource limits and requests for the controller pods. |
 | controller.tolerations | list | `[]` | [Tolerations] for use with node taints |
 | controller.topologySpreadConstraints | list | `[]` | Assign custom [TopologySpreadConstraints] rules to the controller |
-| controller.trafficRouterPlugins | object | `{}` | Configures 3rd party traffic router plugins for controller |
+| controller.trafficRouterPlugins | list | `[]` | Configures 3rd party traffic router plugins for controller |
 | controller.volumeMounts | list | `[]` | Additional volumeMounts to add to the controller container |
 | controller.volumes | list | `[]` | Additional volumes to add to the controller pod |
 | podAnnotations | object | `{}` | Annotations for the all deployed pods |
@@ -138,6 +147,7 @@ For full list of changes please check ArtifactHub [changelog].
 | dashboard.containerSecurityContext | object | `{}` | Security Context to set on container level |
 | dashboard.createClusterRole | bool | `true` | flag to enable creation of dashbord cluster role (requires cluster RBAC) |
 | dashboard.deploymentAnnotations | object | `{}` | Annotations to be added to the dashboard deployment |
+| dashboard.deploymentLabels | object | `{}` | Labels to be added to the dashboard deployment |
 | dashboard.enabled | bool | `false` | Deploy dashboard server |
 | dashboard.extraArgs | list | `[]` | Additional command line arguments to pass to rollouts-dashboard. A list of flags. |
 | dashboard.extraEnv | list | `[]` | Additional environment variables for rollouts-dashboard. A list of name/value maps. |
@@ -163,6 +173,7 @@ For full list of changes please check ArtifactHub [changelog].
 | dashboard.pdb.maxUnavailable | string | `nil` | Maximum number / percentage of pods that may be made unavailable |
 | dashboard.pdb.minAvailable | string | `nil` | Minimum number / percentage of pods that should remain scheduled |
 | dashboard.podAnnotations | object | `{}` | Annotations to be added to application dashboard pods |
+| dashboard.podLabels | object | `{}` | Labels to be added to the application dashboard pods |
 | dashboard.podSecurityContext | object | `{"runAsNonRoot":true}` | Security Context to set on pod level |
 | dashboard.priorityClassName | string | `""` | [priorityClassName] for the dashboard server |
 | dashboard.readonly | bool | `false` | Set cluster role to readonly |
@@ -171,6 +182,7 @@ For full list of changes please check ArtifactHub [changelog].
 | dashboard.service.annotations | object | `{}` | Service annotations |
 | dashboard.service.externalIPs | list | `[]` | Dashboard service external IPs |
 | dashboard.service.labels | object | `{}` | Service labels |
+| dashboard.service.loadBalancerClass | string | `""` | The class of the load balancer implementation |
 | dashboard.service.loadBalancerIP | string | `""` | LoadBalancer will get created with the IP specified in this field |
 | dashboard.service.loadBalancerSourceRanges | list | `[]` | Source IP ranges to allow access to service from |
 | dashboard.service.nodePort | int | `nil` | Service nodePort |

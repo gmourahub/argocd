@@ -8,7 +8,7 @@ kind: ClusterRole
 metadata:
   name: {{ template "argo-workflows.controller.fullname" . }}
   {{- if .Values.singleNamespace }}
-  namespace: {{ .Release.Namespace | quote }}
+  namespace: {{ include "argo-workflows.namespace" . | quote }}
   {{- end }}
   labels:
     {{- include "argo-workflows.labels" (dict "context" . "component" .Values.controller.name "name" .Values.controller.name) | nindent 4 }}
@@ -198,7 +198,7 @@ rules:
   - watch
 {{- end }}
 
-{{- if .Values.controller.clusterWorkflowTemplates.enabled }}
+{{- if and .Values.controller.clusterWorkflowTemplates.enabled (not .Values.singleNamespace) }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole

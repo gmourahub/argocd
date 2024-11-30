@@ -78,7 +78,7 @@ For full list of changes, please check ArtifactHub [changelog].
 ### High Availability
 
 This chart installs the non-HA version of Argo Workflows by default. If you want to run in HA mode, you can use [these example values](ci/ha-values.yaml) as a starting point.
-Please see the upstream [Operator Manual's High Availability page](https://argoproj.github.io/argo-workflows/high-availability/) to understand how to scale Argo Workflows in depth.
+Please see the upstream [Operator Manual's High Availability page](https://argo-workflows.readthedocs.io/en/stable/high-availability/) to understand how to scale Argo Workflows in depth.
 
 ### Workflow controller
 
@@ -111,6 +111,7 @@ Fields to note:
 |-----|------|---------|-------------|
 | apiVersionOverrides.autoscaling | string | `""` | String to override apiVersion of autoscaling rendered by this helm chart |
 | apiVersionOverrides.cloudgoogle | string | `""` | String to override apiVersion of GKE resources rendered by this helm chart |
+| apiVersionOverrides.monitoring | string | `""` | String to override apiVersion of monitoring CRDs (ServiceMonitor) rendered by this helm chart |
 | commonLabels | object | `{}` | Labels to set on all resources |
 | crds.annotations | object | `{}` | Annotations to be added to all CRDs |
 | crds.install | bool | `true` | Install and upgrade CRDs |
@@ -124,6 +125,7 @@ Fields to note:
 | images.tag | string | `""` | Common tag for Argo Workflows images. Defaults to `.Chart.AppVersion`. |
 | kubeVersionOverride | string | `""` | Override the Kubernetes version, which is used to evaluate certain manifests |
 | nameOverride | string | `nil` | String to partially override "argo-workflows.fullname" template |
+| namespaceOverride | string | `.Release.Namespace` | Override the namespace |
 | singleNamespace | bool | `false` | Restrict Argo to operate only in a single namespace (the namespace of the Helm release) by apply Roles and RoleBindings instead of the Cluster equivalents, and start workflow-controller with the --namespaced flag. Use it in clusters with strict access policy. |
 
 ### Workflow
@@ -131,7 +133,10 @@ Fields to note:
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | workflow.namespace | string | `nil` | Deprecated; use controller.workflowNamespaces instead. |
+| workflow.rbac.agentPermissions | bool | `false` | Allows permissions for the Argo Agent. Only required if using http/plugin templates |
+| workflow.rbac.artifactGC | bool | `false` | Allows permissions for the Argo Artifact GC pod. Only required if using artifact gc |
 | workflow.rbac.create | bool | `true` | Adds Role and RoleBinding for the above specified service account to be able to run workflows. A Role and Rolebinding pair is also created for each namespace in controller.workflowNamespaces (see below) |
+| workflow.rbac.serviceAccounts | list | `[]` | Extra service accounts to be added to the RoleBinding |
 | workflow.serviceAccount.annotations | object | `{}` | Annotations applied to created service account |
 | workflow.serviceAccount.create | bool | `false` | Specifies whether a service account should be created |
 | workflow.serviceAccount.labels | object | `{}` | Labels applied to created service account |
@@ -144,7 +149,9 @@ Fields to note:
 |-----|------|---------|-------------|
 | controller.affinity | object | `{}` | Assign custom [affinity] rules |
 | controller.clusterWorkflowTemplates.enabled | bool | `true` | Create a ClusterRole and CRB for the controller to access ClusterWorkflowTemplates. |
+| controller.clusterWorkflowTemplates.serviceAccounts | list | `[]` | Extra service accounts to be added to the ClusterRoleBinding |
 | controller.columns | list | `[]` | Configure Argo Server to show custom [columns] |
+| controller.configMap.annotations | object | `{}` | ConfigMap annotations |
 | controller.configMap.create | bool | `true` | Create a ConfigMap for the controller |
 | controller.configMap.name | string | `""` | ConfigMap name |
 | controller.cronWorkflowWorkers | string | `nil` | Number of cron workflow workers Only valid for 3.5+ |
@@ -163,12 +170,16 @@ Fields to note:
 | controller.kubeConfig | object | `{}` (See [values.yaml]) | Configure when workflow controller runs in a different k8s cluster with the workflow workloads, or needs to communicate with the k8s apiserver using an out-of-cluster kubeconfig secret. |
 | controller.links | list | `[]` | Configure Argo Server to show custom [links] |
 | controller.livenessProbe | object | See [values.yaml] | Configure liveness [probe] for the controller |
+| controller.loadBalancerClass | string | `""` | The class of the load balancer implementation |
 | controller.loadBalancerSourceRanges | list | `[]` | Source ranges to allow access to service from. Only applies to service type `LoadBalancer` |
 | controller.logging.format | string | `"text"` | Set the logging format (one of: `text`, `json`) |
 | controller.logging.globallevel | string | `"0"` | Set the glog logging level |
 | controller.logging.level | string | `"info"` | Set the logging level (one of: `debug`, `info`, `warn`, `error`) |
 | controller.metricsConfig.enabled | bool | `false` | Enables prometheus metrics server |
+| controller.metricsConfig.headlessService | bool | `false` | Flag to enable headless service |
+| controller.metricsConfig.honorLabels | bool | `false` | When true, honorLabels preserves the metric’s labels when they collide with the target’s labels. |
 | controller.metricsConfig.ignoreErrors | bool | `false` | Flag that instructs prometheus to ignore metric emission errors. |
+| controller.metricsConfig.interval | string | `"30s"` | Frequency at which prometheus scrapes metrics |
 | controller.metricsConfig.metricRelabelings | list | `[]` | ServiceMonitor metric relabel configs to apply to samples before ingestion |
 | controller.metricsConfig.metricsTTL | string | `""` | How often custom metrics are cleared from memory |
 | controller.metricsConfig.path | string | `"/metrics"` | Path is the path where metrics are emitted. Must start with a "/". |
@@ -186,7 +197,7 @@ Fields to note:
 | controller.nodeSelector | object | `{"kubernetes.io/os":"linux"}` | [Node selector] |
 | controller.parallelism | string | `nil` | parallelism dictates how many workflows can be running at the same time |
 | controller.pdb.enabled | bool | `false` | Configure [Pod Disruption Budget] for the controller pods |
-| controller.persistence | object | `{}` | enable persistence using postgres |
+| controller.persistence | object | `{}` | enable Workflow Archive to store the status of workflows. Postgres and MySQL (>= 5.7.8) are available. |
 | controller.podAnnotations | object | `{}` | podAnnotations is an optional map of annotations to be applied to the controller Pods |
 | controller.podCleanupWorkers | string | `nil` | Number of pod cleanup workers |
 | controller.podGCDeleteDelayDuration | string | `5s` (Argo Workflows default) | The duration in seconds before the pods in the GC queue get deleted. A zero value indicates that the pods will be deleted immediately. |
@@ -216,6 +227,7 @@ Fields to note:
 | controller.serviceType | string | `"ClusterIP"` | Service type of the controller Service |
 | controller.telemetryConfig.enabled | bool | `false` | Enables prometheus telemetry server |
 | controller.telemetryConfig.ignoreErrors | bool | `false` | Flag that instructs prometheus to ignore metric emission errors. |
+| controller.telemetryConfig.interval | string | `"30s"` | Frequency at which prometheus scrapes telemetry data |
 | controller.telemetryConfig.metricsTTL | string | `""` | How often custom metrics are cleared from memory |
 | controller.telemetryConfig.path | string | `"/telemetry"` | telemetry path |
 | controller.telemetryConfig.port | int | `8081` | telemetry container port |
@@ -296,6 +308,8 @@ Fields to note:
 | server.ingress.pathType | string | `"Prefix"` | Ingress path type. One of `Exact`, `Prefix` or `ImplementationSpecific` |
 | server.ingress.paths | list | `["/"]` | List of ingress paths |
 | server.ingress.tls | list | `[]` | Ingress TLS configuration |
+| server.lifecycle | object | `{}` | Specify postStart and preStop lifecycle hooks for server container |
+| server.loadBalancerClass | string | `""` | The class of the load balancer implementation |
 | server.loadBalancerIP | string | `""` | Static IP address to assign to loadBalancer service type `LoadBalancer` |
 | server.loadBalancerSourceRanges | list | `[]` | Source ranges to allow access to service from. Only applies to service type `LoadBalancer` |
 | server.logging.format | string | `"text"` | Set the logging format (one of: `text`, `json`) |
@@ -336,10 +350,11 @@ Fields to note:
 | server.sso.issuerAlias | string | `""` | Alternate root URLs that can be included for some OIDC providers |
 | server.sso.rbac.enabled | bool | `true` | Adds ServiceAccount Policy to server (Cluster)Role. |
 | server.sso.rbac.secretWhitelist | list | `[]` | Whitelist to allow server to fetch Secrets |
-| server.sso.redirectUrl | string | `""` |  |
+| server.sso.redirectUrl | string | `""` | The OIDC redirect URL. Should be in the form <argo-root-url>/oauth2/callback. |
 | server.sso.scopes | list | `[]` | Scopes requested from the SSO ID provider |
 | server.sso.sessionExpiry | string | `""` | Define how long your login is valid for (in hours) |
 | server.sso.userInfoPath | string | `""` | Specify the user info endpoint that contains the groups claim |
+| server.terminationGracePeriodSeconds | int | `30` | terminationGracePeriodSeconds for container lifecycle hook |
 | server.tmpVolume | object | `{"emptyDir":{}}` | Volume to be mounted in Pods for temporary files. |
 | server.tolerations | list | `[]` | [Tolerations] for use with node taints |
 | server.topologySpreadConstraints | list | `[]` | Assign custom [TopologySpreadConstraints] rules to the argo server |
@@ -354,7 +369,7 @@ Fields to note:
 | artifactRepository.azure | object | `{}` (See [values.yaml]) | Store artifact in Azure Blob Storage |
 | artifactRepository.gcs | object | `{}` (See [values.yaml]) | Store artifact in a GCS object store |
 | artifactRepository.s3 | object | See [values.yaml] | Store artifact in a S3-compliant object store |
-| artifactRepositoryRef | object | `{}` (See [values.yaml]) | The section of [artifact repository ref](https://argoproj.github.io/argo-workflows/artifact-repository-ref/). Each map key is the name of configmap |
+| artifactRepositoryRef | object | `{}` (See [values.yaml]) | The section of [artifact repository ref](https://argo-workflows.readthedocs.io/en/stable/artifact-repository-ref/). Each map key is the name of configmap |
 | customArtifactRepository | object | `{}` | The section of custom artifact repository. Utilize a custom artifact repository that is not one of the current base ones (s3, gcs, azure) |
 | useStaticCredentials | bool | `true` | Use static credentials for S3 (eg. when not using AWS IRSA) |
 
@@ -381,7 +396,7 @@ Fields to note:
 [affinity]: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
 [BackendConfigSpec]: https://cloud.google.com/kubernetes-engine/docs/concepts/backendconfig#backendconfigspec_v1beta1_cloudgooglecom
 [FrontendConfigSpec]: https://cloud.google.com/kubernetes-engine/docs/how-to/ingress-features#configuring_ingress_features_through_frontendconfig_parameters
-[links]: https://argoproj.github.io/argo-workflows/links/
+[links]: https://argo-workflows.readthedocs.io/en/stable/links/
 [columns]: https://github.com/argoproj/argo-workflows/pull/10693
 [Node selector]: https://kubernetes.io/docs/user-guide/node-selection/
 [Pod Disruption Budget]: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
@@ -390,5 +405,5 @@ Fields to note:
 [TopologySpreadConstraints]: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
 [values.yaml]: values.yaml
 [changelog]: https://artifacthub.io/packages/helm/argo/argo-workflows?modal=changelog
-[SSO RBAC]: https://argo-workflows.readthedocs.io/en/latest/argo-server-sso/
-[Argo Server Auth Mode]: https://argo-workflows.readthedocs.io/en/latest/argo-server-auth-mode/
+[SSO RBAC]: https://argo-workflows.readthedocs.io/en/stable/argo-server-sso/
+[Argo Server Auth Mode]: https://argo-workflows.readthedocs.io/en/stable/argo-server-auth-mode/

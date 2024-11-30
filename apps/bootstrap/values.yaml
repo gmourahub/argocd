@@ -19,12 +19,12 @@ applications:
       prune: 'true'
       selfHeal: 'true'
 
-    # - name: argo-events
-    #   namespace: argo
-    # - name: argo-rollouts
-    #   namespace: argo
-    # - name: argo-workflows
-    #   namespace: argo
+    - name: argo-events
+      namespace: argo
+    - name: argo-rollouts
+      namespace: argo
+    - name: argo-workflows
+      namespace: argo
 
     # - name: lgtm-distributed
     #   namespace: o11y
